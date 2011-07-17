@@ -30,7 +30,7 @@ from threading import Lock
 
 # apparently py2exe won't build these unless they're imported somewhere
 from sickbeard import providers, metadata
-from providers import ezrss, tvtorrents, nzbs_org, nzbmatrix, nzbsrus, newznab, womble, newzbin
+from providers import ezrss, tvtorrents, nzbs_org, nzbmatrix, nzbsrus, newznab, womble, newzbin, nzbindex
 
 from sickbeard import searchCurrent, searchBacklog, showUpdater, versionChecker, properFinder, autoPostProcesser
 from sickbeard import helpers, db, exceptions, show_queue, search_queue, scheduler
@@ -170,6 +170,8 @@ NZBSRUS_HASH = None
 NZBMATRIX = False
 NZBMATRIX_USERNAME = None
 NZBMATRIX_APIKEY = None
+
+NZBINDEX = False
 
 NEWZBIN = False
 NEWZBIN_USERNAME = None
@@ -353,7 +355,7 @@ def initialize(consoleLogging=True):
                 QUALITY_DEFAULT, SEASON_FOLDERS_FORMAT, SEASON_FOLDERS_DEFAULT, STATUS_DEFAULT, \
                 GROWL_NOTIFY_ONSNATCH, GROWL_NOTIFY_ONDOWNLOAD, TWITTER_NOTIFY_ONSNATCH, TWITTER_NOTIFY_ONDOWNLOAD, \
                 USE_GROWL, GROWL_HOST, GROWL_PASSWORD, USE_PROWL, PROWL_NOTIFY_ONSNATCH, PROWL_NOTIFY_ONDOWNLOAD, PROWL_API, PROWL_PRIORITY, PROG_DIR, NZBMATRIX, NZBMATRIX_USERNAME, \
-                NZBMATRIX_APIKEY, versionCheckScheduler, VERSION_NOTIFY, PROCESS_AUTOMATICALLY, \
+                NZBMATRIX_APIKEY, NZBINDEX, versionCheckScheduler, VERSION_NOTIFY, PROCESS_AUTOMATICALLY, \
                 KEEP_PROCESSED_DIR, TV_DOWNLOAD_DIR, TVDB_BASE_URL, MIN_SEARCH_FREQUENCY, \
                 showQueueScheduler, searchQueueScheduler, ROOT_DIRS, \
                 NAMING_SHOW_NAME, NAMING_EP_TYPE, NAMING_MULTI_EP_TYPE, CACHE_DIR, ACTUAL_CACHE_DIR, TVDB_API_PARMS, \
@@ -503,6 +505,8 @@ def initialize(consoleLogging=True):
         NZBMATRIX = bool(check_setting_int(CFG, 'NZBMatrix', 'nzbmatrix', 0))
         NZBMATRIX_USERNAME = check_setting_str(CFG, 'NZBMatrix', 'nzbmatrix_username', '')
         NZBMATRIX_APIKEY = check_setting_str(CFG, 'NZBMatrix', 'nzbmatrix_apikey', '')
+
+        NZBINDEX = bool(check_setting_int(CFG, 'NZBIndex', 'nzbindex', 0))
 
         NEWZBIN = bool(check_setting_int(CFG, 'Newzbin', 'newzbin', 0))
         NEWZBIN_USERNAME = check_setting_str(CFG, 'Newzbin', 'newzbin_username', '')
@@ -988,6 +992,9 @@ def save_config():
     new_config['NZBMatrix']['nzbmatrix'] = int(NZBMATRIX)
     new_config['NZBMatrix']['nzbmatrix_username'] = NZBMATRIX_USERNAME
     new_config['NZBMatrix']['nzbmatrix_apikey'] = NZBMATRIX_APIKEY
+
+    new_config['NZBIndex'] = {}
+    new_config['NZBIndex']['nzbindex'] = int(NZBINDEX)
 
     new_config['Newzbin'] = {}
     new_config['Newzbin']['newzbin'] = int(NEWZBIN)
