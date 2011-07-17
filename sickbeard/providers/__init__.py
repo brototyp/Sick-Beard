@@ -23,6 +23,11 @@ __all__ = ['ezrss',
            'nzbsrus',
            'womble',
            'newzbin',
+<<<<<<< Updated upstream
+=======
+           'nzbindex',
+           'nzbserien',
+>>>>>>> Stashed changes
            ]
 
 import sickbeard
