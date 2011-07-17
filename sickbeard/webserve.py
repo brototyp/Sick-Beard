@@ -55,6 +55,8 @@ import xml.etree.cElementTree as etree
 
 from sickbeard import browser
 
+from sickbeard.blackandwhitelist import *
+
 
 class PageTemplate (Template):
     def __init__(self, *args, **KWs):
@@ -2060,7 +2062,7 @@ class Home:
         return result['description'] if result else 'Episode not found.'
 
     @cherrypy.expose
-    def editShow(self, show=None, location=None, anyQualities=[], bestQualities=[], seasonfolders=None, paused=None, directCall=False, air_by_date=None, tvdbLang=None):
+    def editShow(self, show=None, location=None, anyQualities=[], bestQualities=[], seasonfolders=None, paused=None, directCall=False, air_by_date=None, tvdbLang=None, whitelist = None, blacklist = None):
 
         if show == None:
             errString = "Invalid show ID: "+str(show)
@@ -2082,6 +2084,16 @@ class Home:
 
             t = PageTemplate(file="editShow.tmpl")
             t.submenu = HomeMenu()
+
+            bwl = BlackAndWhiteList(showObj.tvdbid)
+            t.whitelist = ""
+            if bwl.whiteDict.has_key("global"):
+                t.whitelist = ",".join(bwl.whiteDict["global"])
+
+            t.blacklist = ""
+            if bwl.blackDict.has_key("global"):
+                t.blacklist = ",".join(bwl.blackDict["global"])
+
             with showObj.lock:
                 t.show = showObj
 
@@ -2118,6 +2130,19 @@ class Home:
 
         if type(bestQualities) != list:
             bestQualities = [bestQualities]
+
+
+        # check/set the black/white list
+        if whitelist:
+            whitelist = whitelist.split(",")
+        if blacklist:
+            blacklist = blacklist.split(",")
+        
+        bwl = BlackAndWhiteList(showObj.tvdbid)
+        if whitelist:
+            bwl.set_white_keywords_for("global", whitelist)
+        if blacklist:
+            bwl.set_black_keywords_for("global", blacklist)
 
         errors = []
         with showObj.lock:
