@@ -32,7 +32,7 @@ from name_parser.parser import NameParser, InvalidNameException
 resultFilters = ["sub(pack|s|bed)?", "nlsub(bed|s)?", "swesub(bed)?",
                  "(dir|sample|nfo)fix", "sample", "(dvd)?extras"]
 
-mandatory = ["german"]
+#mandatory = ["german"]
 
 def filterBadReleases(name):
     """
@@ -72,10 +72,10 @@ def filterBadReleases(name):
             return False
 
     # if every of the mandatory words are in there, say yes
-    for x in mandatory:
-        if not re.search('(^|[\W_])'+x+'($|[\W_])', check_string, re.I):
-            logger.log(u"Mandatory string not found: "+name+" doesnt contains "+x+", ignoring it", logger.DEBUG)
-            return False
+    # for x in mandatory:
+    #     if not re.search('(^|[\W_])'+x+'($|[\W_])', check_string, re.I):
+    #         logger.log(u"Mandatory string not found: "+name+" doesnt contains "+x+", ignoring it", logger.DEBUG)
+    #         return False
 
     return True
 
