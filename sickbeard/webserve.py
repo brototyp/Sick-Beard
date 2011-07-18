@@ -1078,6 +1078,8 @@ class ConfigProviders:
                 sickbeard.NZBMATRIX = curEnabled
             elif curProvider == 'nzbindex':
                 sickbeard.NZBINDEX = curEnabled
+            elif curProvider == 'nzbserien':
+                sickbeard.NZBSERIEN = curEnabled
             elif curProvider == 'newzbin':
                 sickbeard.NEWZBIN = curEnabled
             elif curProvider == 'bin_req':
