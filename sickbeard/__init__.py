@@ -30,7 +30,7 @@ from threading import Lock
 
 # apparently py2exe won't build these unless they're imported somewhere
 from sickbeard import providers, metadata
-from providers import ezrss, tvtorrents, nzbs_org, nzbmatrix, nzbsrus, newznab, womble, newzbin, nzbindex, nzbserien
+from providers import ezrss, tvtorrents, nzbmatrix, nzbsrus, newznab, womble, newzbin, nzbindex, nzbserien, nzbs_org_old
 
 from sickbeard import searchCurrent, searchBacklog, showUpdater, versionChecker, properFinder, autoPostProcesser
 from sickbeard import helpers, db, exceptions, show_queue, search_queue, scheduler
@@ -95,6 +95,13 @@ WEB_USERNAME = None
 WEB_PASSWORD = None
 WEB_HOST = None
 WEB_IPV6 = None
+
+USE_API = False
+API_KEY = None
+ 
+ENABLE_HTTPS = False
+HTTPS_CERT = None
+HTTPS_KEY = None
 
 LAUNCH_BROWSER = None
 CACHE_DIR = None
@@ -172,7 +179,7 @@ NZBMATRIX_USERNAME = None
 NZBMATRIX_APIKEY = None
 
 NZBINDEX = False
-
+ 
 NZBSERIEN = False
 
 NEWZBIN = False
@@ -357,6 +364,8 @@ def initialize(consoleLogging=True):
                 QUALITY_DEFAULT, SEASON_FOLDERS_FORMAT, SEASON_FOLDERS_DEFAULT, STATUS_DEFAULT, \
                 GROWL_NOTIFY_ONSNATCH, GROWL_NOTIFY_ONDOWNLOAD, TWITTER_NOTIFY_ONSNATCH, TWITTER_NOTIFY_ONDOWNLOAD, \
                 USE_GROWL, GROWL_HOST, GROWL_PASSWORD, USE_PROWL, PROWL_NOTIFY_ONSNATCH, PROWL_NOTIFY_ONDOWNLOAD, PROWL_API, PROWL_PRIORITY, PROG_DIR, NZBMATRIX, NZBMATRIX_USERNAME, \
+                USE_PYTIVO, PYTIVO_NOTIFY_ONSNATCH, PYTIVO_NOTIFY_ONDOWNLOAD, PYTIVO_UPDATE_LIBRARY, PYTIVO_HOST, PYTIVO_SHARE_NAME, PYTIVO_TIVO_NAME, \
+                USE_NMA, NMA_NOTIFY_ONSNATCH, NMA_NOTIFY_ONDOWNLOAD, NMA_API, NMA_PRIORITY, \
                 NZBMATRIX_APIKEY, NZBINDEX, NZBSERIEN, versionCheckScheduler, VERSION_NOTIFY, PROCESS_AUTOMATICALLY, \
                 KEEP_PROCESSED_DIR, TV_DOWNLOAD_DIR, TVDB_BASE_URL, MIN_SEARCH_FREQUENCY, \
                 showQueueScheduler, searchQueueScheduler, ROOT_DIRS, \
@@ -509,7 +518,7 @@ def initialize(consoleLogging=True):
         NZBMATRIX_APIKEY = check_setting_str(CFG, 'NZBMatrix', 'nzbmatrix_apikey', '')
 
         NZBINDEX = bool(check_setting_int(CFG, 'NZBIndex', 'nzbindex', 0))
-
+ 
         NZBSERIEN = bool(check_setting_int(CFG, 'NZBSerien', 'nzbserien', 0))
 
         NEWZBIN = bool(check_setting_int(CFG, 'Newzbin', 'newzbin', 0))
@@ -999,7 +1008,7 @@ def save_config():
 
     new_config['NZBIndex'] = {}
     new_config['NZBIndex']['nzbindex'] = int(NZBINDEX)
-
+ 
     new_config['NZBSerien'] = {}
     new_config['NZBSerien']['nzbserien'] = int(NZBSERIEN)
 
