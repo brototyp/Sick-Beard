@@ -96,13 +96,6 @@ WEB_PASSWORD = None
 WEB_HOST = None
 WEB_IPV6 = None
 
-USE_API = False
-API_KEY = None
- 
-ENABLE_HTTPS = False
-HTTPS_CERT = None
-HTTPS_KEY = None
-
 LAUNCH_BROWSER = None
 CACHE_DIR = None
 ACTUAL_CACHE_DIR = None
@@ -177,10 +170,6 @@ NZBSRUS_HASH = None
 NZBMATRIX = False
 NZBMATRIX_USERNAME = None
 NZBMATRIX_APIKEY = None
-
-NZBINDEX = False
- 
-NZBSERIEN = False
 
 NEWZBIN = False
 NEWZBIN_USERNAME = None
@@ -516,10 +505,6 @@ def initialize(consoleLogging=True):
         NZBMATRIX = bool(check_setting_int(CFG, 'NZBMatrix', 'nzbmatrix', 0))
         NZBMATRIX_USERNAME = check_setting_str(CFG, 'NZBMatrix', 'nzbmatrix_username', '')
         NZBMATRIX_APIKEY = check_setting_str(CFG, 'NZBMatrix', 'nzbmatrix_apikey', '')
-
-        NZBINDEX = bool(check_setting_int(CFG, 'NZBIndex', 'nzbindex', 0))
- 
-        NZBSERIEN = bool(check_setting_int(CFG, 'NZBSerien', 'nzbserien', 0))
 
         NEWZBIN = bool(check_setting_int(CFG, 'Newzbin', 'newzbin', 0))
         NEWZBIN_USERNAME = check_setting_str(CFG, 'Newzbin', 'newzbin_username', '')
@@ -1005,12 +990,6 @@ def save_config():
     new_config['NZBMatrix']['nzbmatrix'] = int(NZBMATRIX)
     new_config['NZBMatrix']['nzbmatrix_username'] = NZBMATRIX_USERNAME
     new_config['NZBMatrix']['nzbmatrix_apikey'] = NZBMATRIX_APIKEY
-
-    new_config['NZBIndex'] = {}
-    new_config['NZBIndex']['nzbindex'] = int(NZBINDEX)
- 
-    new_config['NZBSerien'] = {}
-    new_config['NZBSerien']['nzbserien'] = int(NZBSERIEN)
 
     new_config['Newzbin'] = {}
     new_config['Newzbin']['newzbin'] = int(NEWZBIN)
