@@ -42,6 +42,9 @@ class NZBSerienProvider(generic.NZBProvider):
         self.cache = NZBSerienCache(self)
 
         self.url = 'http://nzbserien.org'
+        
+        self.name = 'NZBSerien'
+        self.providerType = NZB
 
     def isEnabled(self):
         return sickbeard.NZBSERIEN
