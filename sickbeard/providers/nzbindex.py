@@ -43,7 +43,6 @@ class NZBIndexProvider(generic.NZBProvider):
         self.url = 'http://www.NZBIndex.nl/'
         
         self.name = 'NZBIndex'
-        self.providerType = NZB
 
     def isEnabled(self):
         return sickbeard.NZBINDEX
