@@ -26,7 +26,7 @@ import xml.etree.cElementTree as etree
 import sickbeard
 import generic
 
-from sickbeard import classes, logger, show_name_helpers
+from sickbeard import classes, logger, show_name_helpers, helpers
 from sickbeard import tvcache
 from sickbeard.exceptions import ex
 
@@ -43,6 +43,7 @@ class NZBIndexProvider(generic.NZBProvider):
         self.url = 'http://www.NZBIndex.nl/'
         
         self.name = 'NZBIndex'
+        self.providerType = "nzb"
 
     def isEnabled(self):
         return sickbeard.NZBINDEX

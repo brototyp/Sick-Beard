@@ -26,7 +26,7 @@ import xml.etree.cElementTree as etree
 import sickbeard
 import generic
 
-from sickbeard import classes, logger, show_name_helpers
+from sickbeard import classes, logger, show_name_helpers, helpers
 from sickbeard import tvcache
 from sickbeard.exceptions import ex
 from sickbeard.common import Quality
@@ -44,6 +44,7 @@ class NZBSerienProvider(generic.NZBProvider):
         self.url = 'http://nzbserien.org'
         
         self.name = 'NZBSerien'
+        self.providerType = "nzb"
 
     def isEnabled(self):
         return sickbeard.NZBSERIEN
