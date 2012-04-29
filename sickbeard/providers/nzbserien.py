@@ -26,7 +26,7 @@ import xml.etree.cElementTree as etree
 import sickbeard
 import generic
 
-from sickbeard import classes, logger, show_name_helpers
+from sickbeard import classes, logger, show_name_helpers, helpers
 from sickbeard import tvcache
 from sickbeard.exceptions import ex
 from sickbeard.common import Quality
@@ -42,6 +42,9 @@ class NZBSerienProvider(generic.NZBProvider):
         self.cache = NZBSerienCache(self)
 
         self.url = 'http://nzbserien.org'
+        
+        self.name = 'NZBSerien'
+        self.providerType = "nzb"
 
     def isEnabled(self):
         return sickbeard.NZBSERIEN
@@ -87,22 +90,12 @@ class NZBSerienProvider(generic.NZBProvider):
         if not searchResult:
             return []
 
-
-
         results = []
-
-#        for curItem in items:
-#            title = curItem.findtext('title')
-#            url = curItem.findtext('link')
-#
-#            if not title or not url:
-#                logger.log(u"The XML returned from the NZBSerien RSS feed is incomplete, this result is unusable", logger.ERROR)
-#                continue
-#
-#            results.append(curItem)
-
-        # find table lines
         lines = []
+        
+        #####################################################
+        # be aware that this is just a very very dirty hack !
+        
         p = re.compile('<td class="tablecontent"><a href([\w. <="?>:/&;/-])*</a></td>')
         rest = searchResult
         found = True
@@ -115,9 +108,6 @@ class NZBSerienProvider(generic.NZBProvider):
                 lines.append(rest[match.start():match.end()])
                 rest = rest[match.end():]
         
-        #find names and downloadurls
-        #url regex: download.php\?[\w=]*
-        #title regex: ">[\w./-]*</a>
         urlre = re.compile('download.php\?[\w=]*')
         titlere = re.compile('">[\w./-]*</a>')
         for line in lines:
@@ -169,23 +159,12 @@ class NZBSerienCache(tvcache.TVCache):
     def __init__(self, provider):
 
         tvcache.TVCache.__init__(self, provider)
-
-        # only poll NZBSerien every 25 minutes max
         self.minTime = 25
 
 
     def _getRSSData(self):
-        # get all records since the last timestamp
+    
         url = "http://nzbserien.org/serien.xml"
-
-        #urlArgs = {'q': '',
-        #           'max': 500,
-        #           'sort': 'agedesc',
-        #           'hidespam': 1,
-        #           'minsize':100,
-        #           'nzblink':1}
-
-        #url += urllib.urlencode(urlArgs)
 
         logger.log(u"NZBSerien cache update URL: "+ url, logger.DEBUG)
 

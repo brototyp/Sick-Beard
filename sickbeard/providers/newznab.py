@@ -23,7 +23,7 @@ import datetime
 import re
 import os
 
-import xml.etree.cElementTree as etree
+from xml.dom.minidom import parseString
 
 import sickbeard
 import generic
@@ -76,7 +76,7 @@ class NewznabProvider(generic.NZBProvider):
 		to_return = []
 
 		# add new query strings for exceptions
-		name_exceptions = scene_exceptions.get_scene_exceptions(show.tvdbid)
+		name_exceptions = scene_exceptions.get_scene_exceptions(show.tvdbid) + [show.name]
 		for cur_exception in name_exceptions:
 		
 			cur_params = {}
@@ -86,7 +86,7 @@ class NewznabProvider(generic.NZBProvider):
 				cur_params['rid'] = show.tvrid
 			# if we can't then fall back on a very basic name search
 			else:
-				cur_params['q'] = sanitizeSceneName(cur_exception)
+				cur_params['q'] = sanitizeSceneName(cur_exception).replace('.', '_')
 	
 			if season != None:
 				# air-by-date means &season=2010&q=2010.03, no other way to do it atm
@@ -117,7 +117,7 @@ class NewznabProvider(generic.NZBProvider):
 			params['rid'] = ep_obj.show.tvrid
 		# if we can't then fall back on a very basic name search
 		else:
-			params['q'] = sanitizeSceneName(ep_obj.show.name)
+			params['q'] = sanitizeSceneName(ep_obj.show.name).replace('.', '_')
 
 		if ep_obj.show.air_by_date:
 			date_str = str(ep_obj.airdate)
@@ -142,7 +142,7 @@ class NewznabProvider(generic.NZBProvider):
 					continue
 
 				cur_return = params.copy()
-				cur_return['q'] = sanitizeSceneName(cur_exception)
+				cur_return['q'] = sanitizeSceneName(cur_exception).replace('.', '_')
 				to_return.append(cur_return)
 
 		return to_return
@@ -150,13 +150,37 @@ class NewznabProvider(generic.NZBProvider):
 	def _doGeneralSearch(self, search_string):
 		return self._doSearch({'q': search_string})
 
-	#def _doSearch(self, show, season=None, episode=None, search=None):
+	def _checkAuthFromData(self, data):
+
+		try:
+			parsedXML = parseString(data)
+		except Exception:
+			return False
+
+		if parsedXML.documentElement.tagName == 'error':
+			code = parsedXML.documentElement.getAttribute('code')
+			if code == '100':
+				raise exceptions.AuthException("Your API key for "+self.name+" is incorrect, check your config.")
+			elif code == '101':
+				raise exceptions.AuthException("Your account on "+self.name+" has been suspended, contact the administrator.")
+			elif code == '102':
+				raise exceptions.AuthException("Your account isn't allowed to use the API on "+self.name+", contact the administrator")
+			else:
+				logger.log(u"Unknown error given from "+self.name+": "+parsedXML.documentElement.getAttribute('description'), logger.ERROR)
+				return False
+
+		return True
+
 	def _doSearch(self, search_params, show=None):
 
 		params = {"t": "tvsearch",
 				  "maxage": sickbeard.USENET_RETENTION,
 				  "limit": 100,
 				  "cat": '5030,5040'}
+
+		# hack this in for now
+		if self.getID() == 'nzbs_org':
+			params['cat'] += ',5070,5090'
 
 		if search_params:
 			params.update(search_params)
@@ -178,40 +202,28 @@ class NewznabProvider(generic.NZBProvider):
 			data = '<?xml version="1.0" encoding="ISO-8859-1" ?>' + data
 
 		try:
-			responseSoup = etree.ElementTree(etree.XML(data))
-			items = responseSoup.getiterator('item')
+			parsedXML = parseString(data)
+			items = parsedXML.getElementsByTagName('item')
 		except Exception, e:
 			logger.log(u"Error trying to load "+self.name+" RSS feed: "+ex(e), logger.ERROR)
 			logger.log(u"RSS data: "+data, logger.DEBUG)
 			return []
 
-		if responseSoup.getroot().tag == 'error':
-			code = responseSoup.getroot().get('code')
-			if code == '100':
-				raise exceptions.AuthException("Your API key for "+self.name+" is incorrect, check your config.")
-			elif code == '101':
-				raise exceptions.AuthException("Your account on "+self.name+" has been suspended, contact the administrator.")
-			elif code == '102':
-				raise exceptions.AuthException("Your account isn't allowed to use the API on "+self.name+", contact the administrator")
-			else:
-				logger.log(u"Unknown error given from "+self.name+": "+responseSoup.getroot().get('description'), logger.ERROR)
-				return []
+		if not self._checkAuthFromData(data):
+			return []
 
-		if responseSoup.getroot().tag != 'rss':
+		if parsedXML.documentElement.tagName != 'rss':
 			logger.log(u"Resulting XML from "+self.name+" isn't RSS, not parsing it", logger.ERROR)
 			return []
 
 		results = []
 
 		for curItem in items:
-			title = curItem.findtext('title')
-			url = curItem.findtext('link')
+			(title, url) = self._get_title_and_url(curItem)
 
 			if not title or not url:
 				logger.log(u"The XML returned from the "+self.name+" RSS feed is incomplete, this result is unusable: "+data, logger.ERROR)
 				continue
-
-			url = url.replace('&amp;','&')
 
 			results.append(curItem)
 
@@ -251,6 +263,10 @@ class NewznabCache(tvcache.TVCache):
 				  "age": sickbeard.USENET_RETENTION,
 				  "cat": '5040,5030'}
 
+		# hack this in for now
+		if self.provider.getID() == 'nzbs_org':
+			params['cat'] += ',5070,5090'
+
 		if self.provider.key:
 			params['apikey'] = self.provider.key
 
@@ -268,21 +284,4 @@ class NewznabCache(tvcache.TVCache):
 
 	def _checkAuth(self, data):
 
-		try:
-			responseSoup = etree.ElementTree(etree.XML(data))
-		except Exception:
-			return True
-
-		if responseSoup.getroot().tag == 'error':
-			code = responseSoup.getroot().get('code')
-			if code == '100':
-				raise exceptions.AuthException("Your API key for "+self.provider.name+" is incorrect, check your config.")
-			elif code == '101':
-				raise exceptions.AuthException("Your account on "+self.provider.name+" has been suspended, contact the administrator.")
-			elif code == '102':
-				raise exceptions.AuthException("Your account isn't allowed to use the API on "+self.provider.name+", contact the administrator")
-			else:
-				logger.log(u"Unknown error given from "+self.provider.name+": "+responseSoup.getroot().get('description'), logger.ERROR)
-				return False
-
-		return True
+		return self.provider._checkAuthFromData(data)
