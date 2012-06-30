@@ -341,7 +341,7 @@ class GitUpdateManager(UpdateManager):
         if self._newest_commit_hash:
             url = 'http://github.com/brototyp/Sick-Beard/compare/'+self._cur_commit_hash+'...'+self._newest_commit_hash
         else:
-            url = 'http://github.com/brototyp/Sick-Beard/commits/'
+            url = 'http://github.com/brototyp/Sick-Beard/commits/black_white+basic_interface/'
 
         new_str = 'There is a <a href="'+url+'" onclick="window.open(this.href); return false;">newer version available</a> ('+message+')'
         new_str += "&mdash; <a href=\""+self.get_update_url()+"\">Update Now</a>"
